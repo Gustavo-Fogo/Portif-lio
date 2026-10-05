@@ -3,3 +3,7 @@ dist
 dev-dist
 *.local
 .DS_Store
+
+# Pacotes de entrega gerados localmente
+*.zip
+*.bundle
