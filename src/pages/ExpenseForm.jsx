@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore, upsertItem, removeItem } from '../lib/store.jsx';
-import { newExpense, PAYMENT_METHODS, STATUS, MOMENTS, TYPES, isCardPayment } from '../lib/model.js';
+import { newExpense, PAYMENT_METHODS, STATUS, MOMENTS, TYPES, isCardPayment, PAYER_EACH, PAYER_NONE, isPerson } from '../lib/model.js';
 import { expenseTotal, toBRL, effectiveRate, cardMarkupPct } from '../lib/money.js';
 import { fmtBRL, fmtMoney, fmtDayShort } from '../lib/format.js';
 import { Modal, Field, NumberInput, Segmented, Chips, toast } from '../components/ui.jsx';
@@ -16,7 +16,7 @@ export default function ExpenseForm({ trip, expense, preset, onClose }) {
   const [err, setErr] = useState('');
 
   function setSplitMode(mode) {
-    if (mode === 'individual') set({ split: { mode, people: [e.split.people[0] || e.paidBy] } });
+    if (mode === 'individual') set({ split: { mode, people: [e.split.people[0] || (isPerson(trip, e.paidBy) ? e.paidBy : trip.participants[0]?.id)] } });
     else set({ split: { mode, people: e.split.people.length > 1 ? e.split.people : trip.participants.map((p) => p.id) } });
   }
 
@@ -28,6 +28,7 @@ export default function ExpenseForm({ trip, expense, preset, onClose }) {
   async function save() {
     if (!e.description.trim()) return setErr('Informe a descrição.');
     if (e.split.mode === 'igual' && e.split.people.length < 1) return setErr('Selecione ao menos uma pessoa na divisão.');
+    if (e.status === 'pago' && e.paidBy === PAYER_NONE) return setErr('Gasto pago: informe quem pagou (ou "Cada um pagou a sua parte").');
     const out = { ...e, description: e.description.trim() };
     if (out.moment !== 'durante') out.day = '';
     if (out.status !== 'a_pagar') out.dueDate = '';
@@ -148,8 +149,26 @@ export default function ExpenseForm({ trip, expense, preset, onClose }) {
 
       <fieldset className="fieldset">
         <legend>Quem pagou e divisão</legend>
-        <Field label="Quem pagou">
-          <select value={e.paidBy} onChange={(x) => set({ paidBy: x.target.value, split: e.split.mode === 'individual' && e.split.people[0] === e.paidBy ? { mode: 'individual', people: [x.target.value] } : e.split })}>
+        <Field
+          label="Quem pagou"
+          hint={
+            e.paidBy === PAYER_NONE
+              ? 'Ainda não pago: fica fora do acerto de contas até alguém pagar.'
+              : e.paidBy === PAYER_EACH
+                ? 'Cada pessoa da divisão pagou a própria parte: não gera dívida entre vocês.'
+                : ''
+          }
+        >
+          <select
+            value={isPerson(trip, e.paidBy) || e.paidBy === PAYER_EACH ? e.paidBy : PAYER_NONE}
+            onChange={(x) => {
+              const v = x.target.value;
+              const syncIndividual = e.split.mode === 'individual' && e.split.people[0] === e.paidBy && isPerson(trip, v);
+              set({ paidBy: v, split: syncIndividual ? { mode: 'individual', people: [v] } : e.split });
+            }}
+          >
+            <option value={PAYER_NONE}>A definir (ainda não pago)</option>
+            <option value={PAYER_EACH}>Cada um pagou a sua parte</option>
             {trip.participants.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}

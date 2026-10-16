@@ -1,6 +1,6 @@
 // Importação de planilhas – mapeamento e normalização (sem dependência do SheetJS)
 import { norm, round2, toISODate, parseISODate } from './format.js';
-import { newExpense, uid, PALETTE, now } from './model.js';
+import { newExpense, uid, PALETTE, now, PAYER_EACH } from './model.js';
 import { expenseTotal, toBRL } from './money.js';
 
 // ---------- Campos e sinônimos ----------
@@ -228,7 +228,7 @@ export function defaultImportDefaults(trip, role = 'gastos') {
     type: role === 'compras' ? 'flexivel' : 'fixo',
     categoryId: role === 'compras' ? 'compras' : 'outros',
     paymentMethod: 'credito',
-    paidBy: trip.participants[0]?.id || '',
+    paidBy: '',
     splitMode: trip.participants.length > 1 ? 'igual' : 'individual',
     splitPeople: trip.participants.map((p) => p.id),
     detax: false,
@@ -304,19 +304,23 @@ export function rowsToExpenses({ raw, text }, headerRow, mapping, defaults, trip
     const payerText = String(col(row, 'paidBy') ?? '').trim();
     let paidBy = mapPerson(payerText, trip.participants);
     if (payerText && !paidBy) problems.push({ level: 'aviso', msg: `Pessoa "${payerText}" não encontrada; usado o padrão.` });
+    if (!paidBy && /^(cada um|cada|todos|dividido igual)/.test(norm(payerText))) paidBy = PAYER_EACH;
     paidBy ||= defaults.paidBy;
+    // Para gasto "individual" precisamos de uma pessoa; se o pagador não é uma pessoa, usa a primeira.
+    const personForIndividual = trip.participants.some((p) => p.id === paidBy) ? paidBy : trip.participants[0]?.id;
     const splitText = String(col(row, 'split') ?? '').trim();
-    let split = mapSplit(splitText, trip.participants, paidBy);
+    let split = mapSplit(splitText, trip.participants, personForIndividual);
     if (splitText && !split) problems.push({ level: 'aviso', msg: `Divisão "${splitText}" não reconhecida; usado o padrão.` });
     if (split?.approx) problems.push({ level: 'aviso', msg: `Divisão "${splitText}": confira as pessoas selecionadas.` });
-    if (!split) split = defaults.splitMode === 'individual' ? { mode: 'individual', people: [paidBy] } : { mode: 'igual', people: [...defaults.splitPeople] };
-    else split = { mode: split.mode, people: split.people.length ? split.people : [paidBy] };
+    if (!split) split = defaults.splitMode === 'individual' ? { mode: 'individual', people: [personForIndividual] } : { mode: 'igual', people: [...defaults.splitPeople] };
+    else split = { mode: split.mode, people: split.people.length ? split.people : [personForIndividual] };
 
     const detaxText = col(row, 'detax');
     const detax = mapping.detax >= 0 && String(detaxText).trim() !== '' ? truthy(detaxText) || /detax|tax ?free/i.test(String(detaxText)) : defaults.detax;
     const paidBRLRaw = col(row, 'paidBRL');
     const paidBRL = currency !== 'BRL' && paidBRLRaw !== '' && !isNaN(parseNumber(paidBRLRaw)) ? round2(parseNumber(paidBRLRaw)) : null;
 
+    if (status === 'pago' && !paidBy) problems.push({ level: 'aviso', msg: 'Pago sem "quem pagou": fica "A definir" e fora do acerto de contas até ser preenchido.' });
     if (status === 'a_pagar' && !dueDate) problems.push({ level: 'aviso', msg: 'A pagar sem data de vencimento.' });
 
     const expense = newExpense(trip, {

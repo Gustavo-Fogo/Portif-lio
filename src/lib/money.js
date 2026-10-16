@@ -1,6 +1,6 @@
 // Cálculos financeiros: conversão, totais, divisão e acerto de contas
 import { round2 } from './format.js';
-import { isCardPayment, categoryOf, PALETTE } from './model.js';
+import { isCardPayment, categoryOf, PALETTE, PAYER_EACH } from './model.js';
 
 export const expenseTotal = (e) => round2((Number(e.qty) || 0) * (Number(e.unitPrice) || 0));
 
@@ -57,6 +57,7 @@ export function summarize(trip, rates, opts = {}) {
     trip.participants.map((p) => [p.id, { id: p.id, name: p.name, share: emptyStatus(), paid: 0, owed: 0 }])
   );
   let missingRate = false;
+  const unassigned = { count: 0, total: 0 };
 
   for (const e of trip.expenses) {
     const brl = toBRL(e, trip, rate);
@@ -79,17 +80,25 @@ export function summarize(trip, rates, opts = {}) {
 
     const people = splitPeople(e, trip);
     const part = brl / people.length;
+    const each = e.paidBy === PAYER_EACH;
+    const payerKnown = each || persons.has(e.paidBy);
+    // Sem pagador definido, o gasto fica fora do acerto (ninguém pagou ainda).
+    const settles = settleStatuses.includes(st) && payerKnown;
+    if (settleStatuses.includes(st) && !payerKnown) {
+      unassigned.count++;
+      unassigned.total += brl;
+    }
     for (const pid of people) {
       const p = persons.get(pid);
       if (!p) continue;
       p.share[st] += part;
       p.share.total += part;
-      if (settleStatuses.includes(st)) p.owed += part;
+      if (settles) {
+        p.owed += part;
+        if (each) p.paid += part; // cada um pagou a própria parte
+      }
     }
-    if (settleStatuses.includes(st)) {
-      const payer = persons.get(e.paidBy);
-      if (payer) payer.paid += brl;
-    }
+    if (settles && !each) persons.get(e.paidBy).paid += brl;
   }
 
   const perPerson = [...persons.values()].map((p) => ({ ...p, balance: round2(p.paid - p.owed) }));
@@ -104,6 +113,7 @@ export function summarize(trip, rates, opts = {}) {
     categories,
     perPerson,
     settlement: settle(perPerson),
+    unassigned: { count: unassigned.count, total: round2(unassigned.total) },
     upcoming: upcomingDue(trip, rate),
     detax: detaxSummary(trip, rate),
   };

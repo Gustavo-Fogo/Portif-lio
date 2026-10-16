@@ -24,6 +24,10 @@ Dentro da viagem há 5 abas:
   **📍 Buscar**. Depois arraste o pino se precisar. No Mapa, **Buscar coordenadas**
   localiza de uma vez as atividades que ainda estão sem pino. Para corrigir um pino,
   marque **Ajustar pinos** e arraste.
+- **Quem pagou**: escolha a pessoa quando o gasto já foi pago. Para o que ainda vai
+  acontecer, deixe **A definir**: o gasto entra nos totais, mas fica fora do acerto de
+  contas até alguém pagar. Se cada um pagou a própria parte (ex.: hospedagem dividida
+  e paga por cada um), use **Cada um pagou a sua parte**, que não gera dívida.
 - **Detax**: marque a opção nas compras que permitem restituição. O Resumo soma por
   loja e por dia e avisa quando o valor fica abaixo do mínimo (€100,01 na França).
   O percentual e o mínimo ficam em **Editar**.

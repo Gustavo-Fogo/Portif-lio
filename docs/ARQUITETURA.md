@@ -82,6 +82,8 @@ Activity { date, order, time, title, address, lat, lng, note, alert, cost, costC
   e `× (1 + spread + IOF)` quando a forma de pagamento é cartão de crédito/débito.
 - **Cotação**: a manual, se preenchida; senão a última buscada (guardada com data/hora).
 - **Divisão**: individual (uma pessoa) ou igual entre as pessoas selecionadas.
+- **Quem pagou**: uma pessoa, `''` (a definir: fora do acerto) ou `__cada_um__`
+  (cada pessoa da divisão pagou a própria parte: não gera dívida).
 - **Acerto de contas**: saldo = quanto pagou − sua parte; transferências mínimas
   (devedor maior → credor maior). Por padrão considera pagos + a pagar; dá para incluir estimados.
 - **Detax**: compras marcadas, agrupadas por loja + dia; só contam grupos acima do mínimo.

@@ -1,6 +1,6 @@
 // Exportar gastos para .xlsx
 import * as XLSX from 'xlsx';
-import { STATUS, MOMENTS, TYPES, paymentLabel, categoryOf, personName } from './model.js';
+import { STATUS, MOMENTS, TYPES, paymentLabel, categoryOf, personName, payerLabel } from './model.js';
 import { expenseTotal, toBRL, summarize, splitPeople } from './money.js';
 
 export function buildExpensesWorkbook(trip, rates) {
@@ -22,7 +22,7 @@ export function buildExpensesWorkbook(trip, rates) {
     Status: STATUS[e.status] || '',
     Vencimento: e.dueDate || '',
     'Forma de pagamento': paymentLabel(e.paymentMethod),
-    'Quem pagou': personName(trip, e.paidBy),
+    'Quem pagou': payerLabel(trip, e.paidBy),
     Divisão: e.split?.mode === 'individual' ? 'Individual' : 'Igual',
     'Dividido entre': splitPeople(e, trip).map((id) => personName(trip, id)).join(', '),
     Detax: e.detax ? 'Sim' : '',

@@ -228,7 +228,7 @@ function objToExpense(obj, trip, role) {
   const currency = detectCurrency(currencyField, null) || (/brl|real/i.test(String(currencyField)) ? 'BRL' : null) || detectCurrency(get('total'), null) || trip.currency;
   const status = mapStatus(get('status')) || (obj.pago === true ? 'pago' : obj.pago === false ? 'a_pagar' : 'estimado');
   const day = parseDate(get('day'), year);
-  const paidBy = mapPerson(get('paidBy'), trip.participants) || trip.participants[0].id;
+  const paidBy = mapPerson(get('paidBy'), trip.participants) || '';
   const detaxRaw = get('detax');
   return newExpense(trip, {
     description: str(get('description')) || '(sem descrição)',

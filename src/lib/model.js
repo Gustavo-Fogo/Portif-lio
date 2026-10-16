@@ -37,6 +37,10 @@ export const PAYMENT_METHODS = [
 export const paymentLabel = (id) => PAYMENT_METHODS.find((p) => p.id === id)?.label || '—';
 export const isCardPayment = (id) => !!PAYMENT_METHODS.find((p) => p.id === id)?.card;
 
+// Valores especiais de "quem pagou"
+export const PAYER_NONE = ''; // ainda não definido (gasto futuro)
+export const PAYER_EACH = '__cada_um__'; // cada um pagou a própria parte (não gera dívida)
+
 export const STATUS = {
   pago: 'Pago',
   a_pagar: 'A pagar',
@@ -138,7 +142,7 @@ export function syncDays(trip) {
 
 export function newExpense(trip, data = {}) {
   const everyone = trip.participants.map((p) => p.id);
-  const payer = data.paidBy || trip.participants[0]?.id || '';
+  const first = trip.participants[0]?.id || '';
   return {
     id: uid(),
     description: '',
@@ -153,8 +157,8 @@ export function newExpense(trip, data = {}) {
     status: 'estimado',
     dueDate: '',
     paymentMethod: 'credito',
-    paidBy: payer,
-    split: { mode: everyone.length > 1 ? 'igual' : 'individual', people: everyone.length > 1 ? everyone : [payer] },
+    paidBy: PAYER_NONE,
+    split: { mode: everyone.length > 1 ? 'igual' : 'individual', people: everyone.length > 1 ? everyone : [first] },
     detax: false,
     paidBRL: null,
     note: '',
@@ -211,6 +215,12 @@ export function newRisk(data = {}) {
 export const categoryOf = (trip, id) =>
   trip.categories.find((c) => c.id === id) || { id: 'outros', name: 'Outros', color: OTHER_COLOR };
 export const personName = (trip, id) => trip.participants.find((p) => p.id === id)?.name || '—';
+export const isPerson = (trip, id) => trip.participants.some((p) => p.id === id);
+export function payerLabel(trip, id) {
+  if (id === PAYER_EACH) return 'Cada um pagou a sua parte';
+  if (!isPerson(trip, id)) return 'A definir';
+  return personName(trip, id);
+}
 
 /** Cor estável por dia (ordem do dia na viagem). */
 export function dayColor(trip, date) {

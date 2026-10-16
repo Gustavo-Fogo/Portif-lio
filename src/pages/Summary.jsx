@@ -135,8 +135,13 @@ export default function Summary({ trip }) {
         ) : (
           <p className="muted">Ninguém deve nada. Contas acertadas. ✅</p>
         )}
+        {s.unassigned.count > 0 && (
+          <p className="small muted">
+            {s.unassigned.count} {s.unassigned.count === 1 ? 'gasto' : 'gastos'} ({fmtBRL(s.unassigned.total)}) com pagador "a definir" {s.unassigned.count === 1 ? 'fica' : 'ficam'} fora do acerto até alguém pagar.
+          </p>
+        )}
         <p className="small muted">
-          Considera quem pagou cada gasto e a divisão escolhida. Valores em {trip.currency} convertidos para reais.
+          Considera quem pagou cada gasto e a divisão escolhida. "Cada um pagou a sua parte" não gera dívida. Valores em {trip.currency} convertidos para reais.
         </p>
       </Card>
 

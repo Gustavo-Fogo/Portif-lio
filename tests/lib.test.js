@@ -293,3 +293,29 @@ describe('dias', () => {
     expect(t.days.map((d) => d.theme)).toEqual(['Chegada', '', '']);
   });
 });
+
+describe('quem pagou: a definir e cada um a sua parte', () => {
+  it('cada um pagou a sua parte não gera dívida e conta como pago por todos', () => {
+    const trip = newTrip({ currency: 'EUR', participants: ['Kety', 'Marcelo', 'Gustavo', 'Iramaia'] });
+    const ids = people(trip);
+    trip.expenses = [newExpense(trip, { currency: 'BRL', unitPrice: 2500, status: 'pago', paidBy: '__cada_um__', split: { mode: 'igual', people: ids } })];
+    const s = summarize(trip, {});
+    expect(s.settlement).toHaveLength(0);
+    expect(s.perPerson.every((p) => p.paid === 625 && p.balance === 0)).toBe(true);
+  });
+  it('pagador a definir fica fora do acerto, mas conta na parte de cada um', () => {
+    const trip = newTrip({ currency: 'EUR', participants: ['A', 'B'] });
+    const [a, b] = people(trip);
+    trip.expenses = [
+      newExpense(trip, { currency: 'BRL', unitPrice: 100, status: 'a_pagar', paidBy: '', split: { mode: 'igual', people: [a, b] } }),
+      newExpense(trip, { currency: 'BRL', unitPrice: 50, status: 'pago', paidBy: a, split: { mode: 'igual', people: [a, b] } }),
+    ];
+    const s = summarize(trip, {});
+    expect(s.unassigned).toEqual({ count: 1, total: 100 });
+    expect(s.settlement).toEqual([expect.objectContaining({ from: b, to: a, amount: 25 })]);
+    expect(s.perPerson[0].share.total).toBe(75);
+  });
+  it('gasto novo começa com pagador a definir', () => {
+    expect(newExpense(newTrip({ participants: ['A', 'B'] })).paidBy).toBe('');
+  });
+});

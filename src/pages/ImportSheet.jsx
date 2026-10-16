@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore, go, upsertItem, removeItem } from '../lib/store.jsx';
-import { STATUS, MOMENTS, TYPES, PAYMENT_METHODS, categoryOf } from '../lib/model.js';
+import { STATUS, MOMENTS, TYPES, PAYMENT_METHODS, categoryOf, PAYER_EACH } from '../lib/model.js';
 import { effectiveRate } from '../lib/money.js';
 import { fmtMoney } from '../lib/format.js';
 import {
@@ -145,10 +145,14 @@ export default function ImportSheet({ trip }) {
                   <select value={defaults.paymentMethod} onChange={(e) => setDefaults({ ...defaults, paymentMethod: e.target.value })}>{PAYMENT_METHODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}</select>
                 </Field>
                 <Field label="Quem pagou (padrão)">
-                  <select value={defaults.paidBy} onChange={(e) => setDefaults({ ...defaults, paidBy: e.target.value })}>{trip.participants.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                  <select value={defaults.paidBy} onChange={(e) => setDefaults({ ...defaults, paidBy: e.target.value })}>
+                    <option value="">A definir (ainda não pago)</option>
+                    <option value={PAYER_EACH}>Cada um pagou a sua parte</option>
+                    {trip.participants.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
                 </Field>
                 <Field label="Divisão padrão">
-                  <Segmented value={defaults.splitMode} onChange={(v) => setDefaults({ ...defaults, splitMode: v })} options={[['individual', 'Individual (de quem pagou)'], ['igual', 'Dividido igualmente']]} />
+                  <Segmented value={defaults.splitMode} onChange={(v) => setDefaults({ ...defaults, splitMode: v })} options={[['individual', 'Individual'], ['igual', 'Dividido igualmente']]} />
                 </Field>
               </div>
               {defaults.splitMode === 'igual' && (

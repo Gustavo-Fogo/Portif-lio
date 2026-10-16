@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore, go } from '../lib/store.jsx';
-import { STATUS_SHORT, MOMENTS, categoryOf, personName, paymentLabel } from '../lib/model.js';
+import { STATUS_SHORT, MOMENTS, categoryOf, personName, paymentLabel, PAYER_EACH, isPerson } from '../lib/model.js';
 import { expenseTotal, toBRL, effectiveRate, cardMarkupPct, splitPeople } from '../lib/money.js';
 import { fmtBRL, fmtMoney, fmtRate, fmtDateTime, fmtDayShort, fmtDate } from '../lib/format.js';
 import { Card, NumberInput, Field, Badge, toast } from '../components/ui.jsx';
@@ -171,7 +171,7 @@ export default function Finance({ trip }) {
                     {[cat.name, e.vendor, e.moment === 'durante' ? (e.day ? fmtDayShort(e.day) : 'durante') : 'antes', paymentLabel(e.paymentMethod)].filter(Boolean).join(' · ')}
                   </span>
                   <span className="small">
-                    {personName(trip, e.paidBy)} pagou · {e.split.mode === 'individual' ? `de ${personName(trip, people[0])}` : people.length === trip.participants.length ? 'dividido entre todos' : `dividido: ${people.map((p) => personName(trip, p)).join(', ')}`}
+                    {e.paidBy === PAYER_EACH ? 'Cada um pagou a sua parte' : isPerson(trip, e.paidBy) ? `${personName(trip, e.paidBy)} pagou` : 'Pagador a definir'} · {e.split.mode === 'individual' ? `de ${personName(trip, people[0])}` : people.length === trip.participants.length ? 'dividido entre todos' : `dividido: ${people.map((p) => personName(trip, p)).join(', ')}`}
                   </span>
                   <span className="badges">
                     <Badge kind={statusKind[e.status]}>{STATUS_SHORT[e.status]}</Badge>
