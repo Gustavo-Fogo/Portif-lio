@@ -5,6 +5,8 @@ import { fmtDayLong, fmtMoney, fmtDate } from '../lib/format.js';
 import { googleMapsDirUrl, hasCoords } from '../lib/geo.js';
 import { Card, Modal, Field, toast } from '../components/ui.jsx';
 import ActivityForm from './ActivityForm.jsx';
+import { RouteSummary, RouteSteps } from '../components/Route.jsx';
+import { hasRoute } from '../lib/transit.js';
 
 const MODE_ICON = { 'a pé': '🚶', metrô: '🚇', rer: '🚆', trem: '🚆', ônibus: '🚌', tram: '🚊', 'táxi/uber': '🚕', carro: '🚗', bicicleta: '🚲', barco: '⛴️', avião: '✈️' };
 export const modeIcon = (m) => MODE_ICON[String(m || '').toLowerCase()] || '➜';
@@ -145,7 +147,7 @@ export default function Itinerary({ trip }) {
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => dropOn(a)}
                 >
-                  <Transfer t={a.transfer} first={i === 0} onClick={() => setEditing({ activity: a })} />
+                  <Transfer t={a.transfer} first={i === 0} />
                   <div className="act">
                     <div className="act-num" style={{ background: color }}>{i + 1}</div>
                     <div className="act-body" onClick={() => setEditing({ activity: a })}>
@@ -189,17 +191,28 @@ export default function Itinerary({ trip }) {
   );
 }
 
-function Transfer({ t, first, onClick }) {
-  if (!t || !(t.duration || t.mode || t.line || t.note)) return null;
+function Transfer({ t, first }) {
+  const [open, setOpen] = useState(false);
+  if (!hasRoute(t)) return null;
+  const steps = t.steps?.length > 0;
   return (
-    <button className="transfer" onClick={onClick}>
-      <span aria-hidden="true">{modeIcon(t.mode)}</span>
-      <span>
-        {first && <span className="muted">Saída: </span>}
-        {[t.mode, t.line && `linha ${t.line}`, t.duration].filter(Boolean).join(' · ')}
-        {t.note && <span className="muted"> — {t.note}</span>}
-      </span>
-    </button>
+    <div className="transfer-wrap">
+      <button className="transfer" onClick={() => steps && setOpen(!open)} aria-expanded={steps ? open : undefined}>
+        {!steps && <span aria-hidden="true">{modeIcon(t.mode)}</span>}
+        <span className="transfer-main">
+          {first && <span className="muted">Saída: </span>}
+          <RouteSummary transfer={t} />
+          {!steps && t.note && <span className="muted"> — {t.note}</span>}
+        </span>
+        {steps && <span className="transfer-toggle">{open ? 'fechar' : 'como ir ▸'}</span>}
+      </button>
+      {open && (
+        <div className="transfer-detail">
+          <RouteSteps transfer={t} />
+          {t.note && <p className="leg-note">💡 {t.note}</p>}
+        </div>
+      )}
+    </div>
   );
 }
 

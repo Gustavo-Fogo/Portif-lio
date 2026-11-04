@@ -14,12 +14,16 @@ Dentro da viagem há 5 abas:
 | **Resumo** | total em R$ (pago, a pagar, estimado), totais por moeda, gráficos, total por pessoa, **quem deve para quem**, próximos vencimentos e Detax |
 | **Financeiro** | câmbio (cotação do dia, spread e IOF do cartão, cotação manual), lista de gastos com filtros, **+ Novo gasto**, **Importar planilha**, **Exportar .xlsx** |
 | **Roteiro** | transporte fixo (voos, trens…), um bloco por dia com tema, atividades, deslocamentos e alertas. Use ▲▼ (ou arraste, no computador) para reordenar. Uma atividade com custo pode virar gasto com **Lançar no Financeiro** |
+| **Trajetos** | todos os deslocamentos do dia, passo a passo: estação de embarque, **sentido** (o nome na placa do trem), estação de desembarque, nº de paradas e tempo, com as cores oficiais das linhas de metrô/RER e o horário sugerido de saída |
 | **Mapa** | pinos numerados por dia (uma cor por dia), linha ligando os pontos, 🏠 hospedagem, filtro por dia, **Abrir percurso no Google Maps** e links de cada trecho em transporte público |
 | **Checklist** | itens de preparação marcáveis e lista de riscos/alertas (alertas com data aparecem também no dia do roteiro) |
 
 ### Dicas
 - **Gasto já pago em euro**: depois que a fatura fechar, abra o gasto e preencha
   "Valor efetivamente pago em reais". O total pago passa a refletir o valor real.
+- **Trajetos passo a passo**: ao editar uma atividade, em "Como chegar aqui", adicione
+  etapas (a pé, metrô, RER, ônibus, Uber) com linha, estação de embarque, sentido,
+  estação de desembarque, paradas e minutos. "Ver como fica" mostra a prévia.
 - **Endereços no mapa**: no cadastro da atividade, digite o endereço e toque em
   **📍 Buscar**. Depois arraste o pino se precisar. No Mapa, **Buscar coordenadas**
   localiza de uma vez as atividades que ainda estão sem pino. Para corrigir um pino,

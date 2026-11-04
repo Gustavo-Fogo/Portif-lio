@@ -5,6 +5,7 @@ import Summary from './Summary.jsx';
 import Finance from './Finance.jsx';
 import Itinerary from './Itinerary.jsx';
 import Checklist from './Checklist.jsx';
+import Routes from './Routes.jsx';
 
 const MapView = lazy(() => import('./MapView.jsx'));
 
@@ -12,6 +13,7 @@ const TABS = [
   ['resumo', 'Resumo', '📊'],
   ['financeiro', 'Financeiro', '💶'],
   ['roteiro', 'Roteiro', '🗓️'],
+  ['trajetos', 'Trajetos', '🚇'],
   ['mapa', 'Mapa', '🗺️'],
   ['checklist', 'Checklist', '✅'],
 ];
@@ -54,6 +56,7 @@ export default function TripView({ trip, tab }) {
         {tab === 'resumo' && <Summary {...props} />}
         {tab === 'financeiro' && <Finance {...props} />}
         {tab === 'roteiro' && <Itinerary {...props} />}
+        {tab === 'trajetos' && <Routes {...props} />}
         {tab === 'mapa' && (
           <Suspense fallback={<div className="loading">Carregando mapa…</div>}>
             <MapView {...props} />

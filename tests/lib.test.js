@@ -319,3 +319,25 @@ describe('quem pagou: a definir e cada um a sua parte', () => {
     expect(newExpense(newTrip({ participants: ['A', 'B'] })).paidBy).toBe('');
   });
 });
+
+import { lineStyle, routeMinutes, departureTime, fmtMinutes, hasRoute } from '../src/lib/transit.js';
+describe('trajetos', () => {
+  it('usa as cores oficiais das linhas', () => {
+    expect(lineStyle('metro', '1').background).toBe('#FFCD00');
+    expect(lineStyle('metro', '1').color).toBe('#111');
+    expect(lineStyle('metro', 'M6').background).toBe('#6ECA97');
+    expect(lineStyle('rer', 'B').background).toBe('#5291CE');
+    expect(lineStyle('rer', 'RER A').background).toBe('#E3051C');
+    expect(lineStyle('metro', '14').color).toBe('#fff');
+  });
+  it('soma o tempo e sugere a saída', () => {
+    const t = { steps: [{ kind: 'walk', min: 8 }, { kind: 'rer', min: '25' }, { kind: 'metro', min: 14 }] };
+    expect(routeMinutes(t)).toBe(47);
+    expect(fmtMinutes(47)).toBe('47 min');
+    expect(fmtMinutes(75)).toBe('1h15');
+    expect(departureTime('13:15', 47)).toBe('12:25');
+    expect(departureTime('00:10', 36)).toBe('23:30');
+    expect(hasRoute(t)).toBe(true);
+    expect(hasRoute({ steps: [], mode: '', line: '', duration: '', note: '' })).toBe(false);
+  });
+});
