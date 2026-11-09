@@ -398,3 +398,24 @@ input[type='color'] { padding: 2px; }
 .leg-walk .leg-head { padding-top: 8px; }
 .leg-walk .leg-to { font-size: 0.95rem; }
 .leg-walk .leg-summary { padding-bottom: 8px; }
+
+/* Mapa do dia na aba Trajetos */
+.route-map-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.route-map-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; padding: 10px 14px; }
+.route-map-title { font-size: 1.05rem; }
+.route-map { height: 360px; z-index: 0; }
+@media (min-width: 720px) { .route-map { height: 440px; } }
+.route-map-foot { padding: 8px 14px; margin: 0; border-top: 1px solid var(--border); }
+.npin-wrap { background: none; border: none; }
+.npin { width: 100%; height: 100%; border-radius: 50%; color: #fff; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); text-shadow: 0 1px 1px rgba(0,0,0,.35); cursor: pointer; }
+.npin.sel { font-size: 1.1rem; border-width: 4px; box-shadow: 0 0 0 4px rgba(31,95,174,.35), 0 3px 8px rgba(0,0,0,.4); }
+.leaflet-tooltip.map-label { background: #fff; color: #16191d; border: none; border-radius: 8px; padding: 3px 8px; font-weight: 700; font-size: 0.78rem; box-shadow: 0 1px 4px rgba(0,0,0,.25); white-space: nowrap; }
+.leaflet-tooltip.map-label::before { display: none; }
+.leaflet-tooltip.map-label.sel { background: var(--primary); color: #fff; }
+.route-detail { background: var(--surface); border: 1px solid var(--border); border-top: 5px solid; border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); scroll-margin-top: 140px; }
+.route-detail-head { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.route-detail-time { margin: 6px 0; }
+.route-detail-time strong { color: var(--primary-dark); font-size: 1.05rem; }
+.leg-summary.flush { padding: 0 0 6px; }
+.leg-sel { outline: 3px solid var(--primary); outline-offset: -1px; }
+.leaflet-tooltip.map-label.label-hidden { opacity: 0; pointer-events: none; }
